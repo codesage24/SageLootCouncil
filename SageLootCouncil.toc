@@ -1,0 +1,11 @@
+## Interface: 30300
+## Title: SageLootCouncil
+## Notes: Orchestrate Loot during a group encounter.
+## Author: CodeSage
+## Version: 0.1.0
+## SavedVariables: SLCDB
+
+Core.lua
+Utils.lua
+Config.lua
+UI.lua
