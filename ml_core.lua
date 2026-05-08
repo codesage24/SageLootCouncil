@@ -390,7 +390,7 @@ function SageLootCouncilML:OnEvent(event, ...)
 
 	elseif event == "CHAT_MSG_WHISPER" and addon.isMasterLooter and db.acceptWhispers then
 		local msg, sender = ...
-		if msg == "rchelp" then
+		if msg == "slchelp" then
 			self:SendWhisperHelp(sender)
 		elseif self.running then
 			self:GetItemsFromMessage(msg, sender)
