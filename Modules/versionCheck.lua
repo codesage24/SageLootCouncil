@@ -1,16 +1,14 @@
--- Author      : Potdisc
--- Create Date : 12/15/2014 8:55:10 PM
 -- DefaultModule
 -- versionCheck.lua	Adds a Version Checker to check versions of either people in current raidgroup or guild
 
-local addon = LibStub("AceAddon-3.0"):GetAddon("RCLootCouncil")
-local RCVersionCheck = addon:NewModule("RCVersionCheck", "AceTimer-3.0", "AceComm-3.0", "AceHook-3.0")
+local addon = LibStub("AceAddon-3.0"):GetAddon("SageLootCouncil")
+local SageVersionCheck = addon:NewModule("SageVersionCheck", "AceTimer-3.0", "AceComm-3.0", "AceHook-3.0")
 local ST = LibStub("ScrollingTable")
-local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
+local L = LibStub("AceLocale-3.0"):GetLocale("SageLootCouncil")
 local Deflate = LibStub("LibDeflate")
 local deflate_level = {level = 9}
 
-function RCVersionCheck:OnInitialize()
+function SageVersionCheck:OnInitialize()
 	-- Initialize scrollCols on self so others can change it
 	self.scrollCols = {
 		{ name = "",				width = 20, sortnext = 2,},
@@ -20,31 +18,31 @@ function RCVersionCheck:OnInitialize()
 	}
 end
 
-function RCVersionCheck:OnEnable()
+function SageVersionCheck:OnEnable()
 	self.frame = self:GetFrame()
-	self:RegisterComm("RCLootCouncil")
-	self:RegisterComm("RCLootCouncil_WotLK")
+	self:RegisterComm("SageLootCouncil")
+	self:RegisterComm("SageLootCouncil_WotLK")
 	self:Show()
 end
 
-function RCVersionCheck:OnDisable()
+function SageVersionCheck:OnDisable()
 	self:Hide()
 	self:UnregisterAllComm()
 	self.frame.rows = {}
 end
 
-function RCVersionCheck:Show()
+function SageVersionCheck:Show()
 	self:AddEntry(addon.playerName, addon.playerClass, addon.guildRank, addon.version, addon.tVersion) -- add ourself
 	self.frame:Show()
 	self.frame.st:SetData(self.frame.rows)
 end
 
-function RCVersionCheck:Hide()
+function SageVersionCheck:Hide()
 	self.frame:Hide()
 end
 
-function RCVersionCheck:OnCommReceived(prefix, serializedMsg, distri, sender)
-	if prefix == "RCLootCouncil" then
+function SageVersionCheck:OnCommReceived(prefix, serializedMsg, distri, sender)
+	if prefix == "SageLootCouncil" then
 		local decoded = Deflate:DecodeForPrint(serializedMsg)
 		if not decoded then 
 			return -- probably an old version or somehow a bad message idk just throw this away
@@ -58,7 +56,7 @@ function RCVersionCheck:OnCommReceived(prefix, serializedMsg, distri, sender)
 		if test and command == "verTestReply" then
 			self:AddEntry(unpack(data))
 		end
-	elseif prefix == "RCLootCouncil_WotLK" then -- TODO: Remove later when everyone has updated.
+	elseif prefix == "SageLootCouncil_WotLK" then -- TODO: Remove later when everyone has updated.
 		local decoded_msg = Deflate:DecodeForPrint(serializedMsg)
     	local decompressed_msg = Deflate:DecompressDeflate(decoded_msg)
 		local ok, command, data = addon:Deserialize(decompressed_msg)
@@ -68,7 +66,7 @@ function RCVersionCheck:OnCommReceived(prefix, serializedMsg, distri, sender)
 	end
 end
 
-function RCVersionCheck:Query(group)
+function SageVersionCheck:Query(group)
 	addon:DebugLog("Player asked for verTest", group)
 	if group == "guild" then
 		GuildRoster()
@@ -97,12 +95,12 @@ function RCVersionCheck:Query(group)
 	elseif group == "guild" then 
 		group = "GUILD" 
 	end
-	addon:SendCommMessage("RCLootCouncil_WotLK", encoded, group)
+	addon:SendCommMessage("SageLootCouncil_WotLK", encoded, group)
 	self:AddEntry(addon.playerName, addon.playerClass, addon.guildRank, addon.version, addon.tVersion) -- add ourself
 	self:ScheduleTimer("QueryTimer", 5)
 end
 
-function RCVersionCheck:QueryTimer()
+function SageVersionCheck:QueryTimer()
 	for k,v in pairs(self.frame.rows) do
 		local cell = self.frame.st:GetCell(k,4)
 		if cell.value == L["Waiting for response"] then cell.value = L["Not installed"] end
@@ -110,7 +108,7 @@ function RCVersionCheck:QueryTimer()
 	self:Update()
 end
 
-function RCVersionCheck:AddEntry(name, class, guildRank, version, tVersion)
+function SageVersionCheck:AddEntry(name, class, guildRank, version, tVersion)
 	local vVal = version
 	if tVersion then vVal = version.."-"..tVersion end
 	for row, v in ipairs(self.frame.rows) do
@@ -137,11 +135,11 @@ function RCVersionCheck:AddEntry(name, class, guildRank, version, tVersion)
 	self:Update()
 end
 
-function RCVersionCheck:Update()
+function SageVersionCheck:Update()
 	self.frame.st:SortData()
 end
 
-function RCVersionCheck:GetVersionColor(ver,tVer)
+function SageVersionCheck:GetVersionColor(ver,tVer)
 	local green, yellow, red, grey = {r=0,g=1,b=0,a=1},{r=1,g=1,b=0,a=1},{r=1,g=0,b=0,a=1},{r=0.75,g=0.75,b=0.75,a=1}
 	if tVer then return yellow end
 	if ver == addon.version then return green end
@@ -149,9 +147,9 @@ function RCVersionCheck:GetVersionColor(ver,tVer)
 	return grey
 end
 
-function RCVersionCheck:GetFrame()
+function SageVersionCheck:GetFrame()
 	if self.frame then return self.frame end
-	local f = addon:CreateFrame("DefaultRCVersionCheckFrame", "versionCheck", L["RCLootCouncil Version Checker"], 250)
+	local f = addon:CreateFrame("DefaultSageVersionCheckFrame", "versionCheck", L["SageLootCouncil Version Checker"], 250)
 
 	local b1 = addon:CreateButton(L["Guild"], f.content)
 	b1:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 10)

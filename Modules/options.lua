@@ -1,13 +1,11 @@
-﻿-- Author      : Potdisc
--- Create Date : 5/24/2012 6:24:55 PM
--- options.lua - option frame in BlizOptions for RCLootCouncil
+﻿-- options.lua - option frame in BlizOptions for SageLootCouncil
 
-local addon = LibStub("AceAddon-3.0"):GetAddon("RCLootCouncil")
-local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
+local addon = LibStub("AceAddon-3.0"):GetAddon("SageLootCouncil")
+local L = LibStub("AceLocale-3.0"):GetLocale("SageLootCouncil")
 ------ Options ------
 function addon:OptionsTable()
 	local options = {
-		name = "RCLootCouncil",
+		name = "SageLootCouncil",
 		type = "group",
 		handler = addon,
 		get = "DBGet",
@@ -33,15 +31,15 @@ function addon:OptionsTable()
 							usage = {
 								order = 1,
 								name = L["Usage"],
-								desc = L["Choose when to use RCLootCouncil"],
+								desc = L["Choose when to use SageLootCouncil"],
 								type = "select",
 								width = "double",
 								values = {
-									ml 			= L["Always use RCLootCouncil when I'm Master Looter"],
-								--	leader 		= "Always use RCLootCouncil when I'm the group leader and enter a raid",
+									ml 			= L["Always use SageLootCouncil when I'm Master Looter"],
+								--	leader 		= "Always use SageLootCouncil when I'm the group leader and enter a raid",
 									ask_ml		= L["Ask me every time I become Master Looter"],
 								--	ask_leader	= "Ask me every time I'm the group leader and enter a raid",
-									never			= L["Never use RCLootCouncil"],
+									never			= L["Never use SageLootCouncil"],
 								},
 								set = function(_, key)
 									for k in pairs(self.db.profile.usage) do
@@ -356,7 +354,7 @@ function addon:OptionsTable()
 										pattern = "%d",
 										usage = L["ignore_input_usage"],
 										get = function() return "\"itemID\"" end,
-										set = function(info, val) tinsert(self.db.profile.ignore, val); LibStub("AceConfigRegistry-3.0"):NotifyChange("RCLootCouncil") end,
+										set = function(info, val) tinsert(self.db.profile.ignore, val); LibStub("AceConfigRegistry-3.0"):NotifyChange("SageLootCouncil") end,
 									},
 									ignoreList = {
 										order = 3,
@@ -991,11 +989,11 @@ function addon:OptionsTable()
 	return options
 end
 
-function RCLootCouncil:DBGet(info)
+function SageLootCouncil:DBGet(info)
 	return self.db.profile[info[#info]]
 end
 
-function RCLootCouncil:DBSet(info, val)
+function SageLootCouncil:DBSet(info, val)
 	self.db.profile[info[#info]] = val
 	self:ConfigTableChanged(info[#info])
 end

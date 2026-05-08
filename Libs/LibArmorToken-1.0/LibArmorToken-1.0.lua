@@ -656,7 +656,7 @@ items = {
         MAGE = {45369},
         ROGUE = {45400},
     },
-    -- ignoring all these since we won't use them in RC
+    -- ignoring all these since we won't use them in SLC
     --[[
     [47242] = { -- Trophy of the Crusade
         DEATHKNIGHT = {48481, 48482, 48483, 48484, 48485, 48553, 48554, 48555, 48556, 48557, 48496, 48497, 48498, 48499, 48500, 48538, 48539, 48540, 48541, 48542},

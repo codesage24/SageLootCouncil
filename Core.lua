@@ -1,4 +1,4 @@
---[[	RCLootCouncil by Potdisc
+--[[	SageLootCouncil
 core.lua	Contains core elements of the addon
 
 --------------------------------
@@ -13,9 +13,9 @@ CHANGELOG
 	-- SEE CHANGELOG.TXT
 ]]
 
-RCLootCouncil = LibStub("AceAddon-3.0"):NewAddon("RCLootCouncil", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceHook-3.0", "AceTimer-3.0");
+SageLootCouncil = LibStub("AceAddon-3.0"):NewAddon("SageLootCouncil", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0", "AceHook-3.0", "AceTimer-3.0");
 local LibDialog = LibStub("LibDialog-1.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
+local L = LibStub("AceLocale-3.0"):GetLocale("SageLootCouncil")
 local lwin = LibStub("LibWindow-1.1")
 local Deflate = LibStub("LibDeflate")
 local LibGroupTalents = LibStub("LibGroupTalents-1.0")
@@ -23,18 +23,18 @@ local LibGroupTalents = LibStub("LibGroupTalents-1.0")
 local GUILD_DEMOTE_PATTERN = "^".._G.ERR_GUILD_DEMOTE_SSS:gsub('%%s', '(.+)').."$"
 local GUILD_PROMOTE_PATTERN = "^".._G.ERR_GUILD_PROMOTE_SSS:gsub('%%s', '(.+)').."$"
 
-RCLootCouncil:SetDefaultModuleState(false)
+SageLootCouncil:SetDefaultModuleState(false)
 
 -- Init shorthands
 local db, historyDB, debugLog;-- = self.db.profile, self.lootDB.factionrealm, self.db.global.log
 -- init modules
 local defaultModules = {
-	masterlooter =	"RCLootCouncilML",
-	lootframe =		"RCLootFrame",
-	history =		"RCLootHistory",
-	version =		"RCVersionCheck",
-	sessionframe =	"RCSessionFrame",
-	votingframe =	"RCVotingFrame",
+	masterlooter =	"SageLootCouncilML",
+	lootframe =		"SageLootFrame",
+	history =		"SageLootHistory",
+	version =		"SageVersionCheck",
+	sessionframe =	"SageSessionFrame",
+	votingframe =	"SageVotingFrame",
 }
 local userModules = {
 	masterlooter = nil,
@@ -45,11 +45,11 @@ local userModules = {
 	votingframe = nil,
 }
 
-local frames = {} -- Contains all frames created by RCLootCouncil:CreateFrame()
+local frames = {} -- Contains all frames created by SageLootCouncil:CreateFrame()
 local unregisterGuildEvent = false
 local player_relogged = true -- Determines if we potentially need data from the ML due to /rl
 
-function RCLootCouncil:OnInitialize()
+function SageLootCouncil:OnInitialize()
 	--IDEA Consider if we want everything on self, or just whatever modules could need.
   	self.version = "3.0.0" -- hard code the version so reload ui updates will report correct version
 	self.nnp = false
@@ -78,10 +78,10 @@ function RCLootCouncil:OnInitialize()
 		WAIT				= { color = {1,1,0,1},				sort = 503,		text = L["Candidate is selecting response, please wait"], },
 		TIMEOUT			= { color = {1,0,0,1},				sort = 504,		text = L["Candidate didn't respond on time"], },
 		REMOVED			= { color = {0.8,0.5,0,1},			sort = 505,		text = L["Candidate removed"], },
-		NOTHING			= { color = {0.5,0.5,0.5,1},		sort = 505,		text = L["Offline or RCLootCouncil not installed"], },
+		NOTHING			= { color = {0.5,0.5,0.5,1},		sort = 505,		text = L["Offline or SageLootCouncil not installed"], },
 		PASS				= { color = {0.7, 0.7,0.7,1},		sort = 800,		text = L["Pass"],},
 		AUTOPASS			= { color = {0.7,0.7,0.7,1},		sort = 801,		text = L["Autopass"], },
-		DISABLED			= { color = {0.3, 0.35, 0.5},		sort = 802,		text = L["Candidate has disabled RCLootCouncil"], },
+		DISABLED			= { color = {0.3, 0.35, 0.5},		sort = 802,		text = L["Candidate has disabled SageLootCouncil"], },
 		--[[1]]			  { color = {1, 0, 0.00392156862745098},		sort = 1,		text = L["Best in Slot"],},
 		--[[2]]			  { color = {1, 0.5490196078431373, 0, 1},		sort = 2,		text = L["Big Upgrade but not BiS"],},
 		--[[3]]			  { color = {0.9882352941176471, 1, 0},			sort = 3,		text = L["Small Upgrade but not BiS"],},
@@ -221,12 +221,12 @@ function RCLootCouncil:OnInitialize()
 	end
 
 	-- register chat and comms
-	self:RegisterChatCommand("rc", "ChatCommand")
-  	self:RegisterChatCommand("rclc", "ChatCommand")
-	self:RegisterComm("RCLootCouncil")
-	self:RegisterComm("RCLootCouncil_WotLK")
-	self.db = LibStub("AceDB-3.0"):New("RCLootCouncilDB", self.defaults, true)
-	self.lootDB = LibStub("AceDB-3.0"):New("RCLootCouncilLootDB")
+	self:RegisterChatCommand("slc", "ChatCommand")
+  	self:RegisterChatCommand("slcc", "ChatCommand")
+	self:RegisterComm("SageLootCouncil")
+	self:RegisterComm("SageLootCouncil_WotLK")
+	self.db = LibStub("AceDB-3.0"):New("SageLootCouncilDB", self.defaults, true)
+	self.lootDB = LibStub("AceDB-3.0"):New("SageLootCouncilLootDB")
 	--[[ Format:
 	"playerName" = {
 		[#] = {"lootWon", "date (d/m/y)", "time (h:m:s)", "instance", "boss", "votes", "itemReplaced1", "itemReplaced2", "response", "responseID", "color", "class", "isAwardReason"}
@@ -244,16 +244,16 @@ function RCLootCouncil:OnInitialize()
 	-- register the optionstable
 	self.options = self:OptionsTable()
 	self.options.args.settings.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("RCLootCouncil", self.options)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("SageLootCouncil", self.options)
 
 	-- add it to blizz options
-	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("RCLootCouncil", "RCLootCouncil", nil, "settings")
-	self.optionsFrame.ml = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("RCLootCouncil", "Master Looter", "RCLootCouncil", "mlSettings")
+	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("SageLootCouncil", "SageLootCouncil", nil, "settings")
+	self.optionsFrame.ml = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("SageLootCouncil", "Master Looter", "SageLootCouncil", "mlSettings")
 	-- Add logged in message in the log
 	self:DebugLog("Logged In")
 end
 
-function RCLootCouncil:OnEnable()
+function SageLootCouncil:OnEnable()
 	-- Register the player's name
 	self.realmName = GetRealmName()
 	self.playerName = UnitName("player")
@@ -313,7 +313,7 @@ function RCLootCouncil:OnEnable()
 	GuildRoster()
 
 	local filterFunc = function(_, event, msg, player, ...)
-		return strfind(msg, "[[RCLootCouncil]]:")
+		return strfind(msg, "[[SageLootCouncil]]:")
 	end
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", filterFunc)
 
@@ -321,7 +321,7 @@ function RCLootCouncil:OnEnable()
 
 	----------PopUp setups --------------
 	-------------------------------------
-	LibDialog:Register("RCLOOTCOUNCIL_CONFIRM_USAGE", {
+	LibDialog:Register("SAGELOOTCOUNCIL_CONFIRM_USAGE", {
 		text = L["confirm_usage_text"],
 		buttons = {
 			{	text = L["Yes"],
@@ -339,7 +339,7 @@ function RCLootCouncil:OnEnable()
 					self.isMasterLooter = true
 					self.masterLooter = self.playerName
 					if #db.council == 0 then -- if there's no council
-						self:Print(L["You haven't set a council! You can edit your council by typing '/rc council'"])
+						self:Print(L["You haven't set a council! You can edit your council by typing '/slc council'"])
 					end
 					self:CallModule("masterlooter")
 					self:GetActiveModule("masterlooter"):NewML(self.masterLooter)
@@ -347,7 +347,7 @@ function RCLootCouncil:OnEnable()
 			},
 			{	text = L["No"],
 				on_click = function()
-					RCLootCouncil:Print(L[" is not active in this raid."])
+					SageLootCouncil:Print(L[" is not active in this raid."])
 				end,
 			},
 		},
@@ -356,7 +356,7 @@ function RCLootCouncil:OnEnable()
 	})
 end
 
-function RCLootCouncil:OnDisable()
+function SageLootCouncil:OnDisable()
 	self:Debug("OnDisable()")
 	--NOTE (not really needed as we probably never call .Disable() on the addon)
 		-- delete all windows
@@ -364,19 +364,19 @@ function RCLootCouncil:OnDisable()
 	self:UnregisterAllEvents()
 end
 
-function RCLootCouncil:RefreshConfig(event, database, profile)
+function SageLootCouncil:RefreshConfig(event, database, profile)
 	self:Debug("RefreshConfig",event, database, profile)
 	self.db.profile = database.profile
 	db = database.profile
 end
 
-function RCLootCouncil:ConfigTableChanged(val)
+function SageLootCouncil:ConfigTableChanged(val)
 	--[[ NOTE By default only ml_core needs to know about changes to the config table,
 		  but we'll use AceEvent incase future modules also wants to know ]]
-	self:SendMessage("RCConfigTableChanged", val)
+	self:SendMessage("SageConfigTableChanged", val)
 end
 
-function RCLootCouncil:CheckGuildUpdate(_, msg)
+function SageLootCouncil:CheckGuildUpdate(_, msg)
 	local _, _, _, rank_name = strfind(msg, GUILD_PROMOTE_PATTERN) -- update on promotion
 	if rank_name == nil then 
 		rank_name = select(4, strfind(msg, GUILD_DEMOTE_PATTERN))
@@ -388,7 +388,7 @@ function RCLootCouncil:CheckGuildUpdate(_, msg)
 	end
 end
 
-function RCLootCouncil:AddGuildRanksToCouncil(rank)
+function SageLootCouncil:AddGuildRanksToCouncil(rank)
 	self.checkUpdateTimer = nil
 	rank = rank or self.db.profile.minRank
 	self.db.profile.council = {}
@@ -401,14 +401,14 @@ function RCLootCouncil:AddGuildRanksToCouncil(rank)
 	self:CouncilChanged()
 end
 
-function RCLootCouncil:CouncilChanged()
+function SageLootCouncil:CouncilChanged()
 	if self.isMasterLooter then 
 		self:GetActiveModule("masterlooter"):CouncilChanged()
 	end
 end
 
 --- Returns a table containing the the council members in the group
-function RCLootCouncil:GetCouncilInGroup()
+function SageLootCouncil:GetCouncilInGroup()
 	local council = {}
 	if self:IsInRaid() then
 		for k,v in ipairs(db.council) do
@@ -432,7 +432,7 @@ function RCLootCouncil:GetCouncilInGroup()
 	return council
 end
 
-function RCLootCouncil:ChatCommand(msg)
+function SageLootCouncil:ChatCommand(msg)
 	local input, arg1, arg2 = self:GetArgs(msg,3)
 	input = strlower(input or "")
 	if not input or input:trim() == "" or input == "help" or input == L["help"] then
@@ -447,7 +447,7 @@ function RCLootCouncil:ChatCommand(msg)
 		-- Call it twice, because reasons..
 		--InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 		--InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
-		LibStub("AceConfigDialog-3.0"):Open("RCLootCouncil")
+		LibStub("AceConfigDialog-3.0"):Open("SageLootCouncil")
 
 	elseif input == 'debug' or input == 'd' then
 		self.debug = not self.debug
@@ -461,8 +461,8 @@ function RCLootCouncil:ChatCommand(msg)
 		end
 
 	elseif input == 'council' or input == L["council"] then
-		LibStub("AceConfigDialog-3.0"):Open("RCLootCouncil")
-		LibStub("AceConfigDialog-3.0"):SelectGroup("RCLootCouncil", "mlSettings", "councilTab")
+		LibStub("AceConfigDialog-3.0"):Open("SageLootCouncil")
+		LibStub("AceConfigDialog-3.0"):SelectGroup("SageLootCouncil", "mlSettings", "councilTab")
 
 
 	elseif input == 'test' or input == L["test"] then
@@ -542,12 +542,12 @@ function RCLootCouncil:ChatCommand(msg)
 end
 
 local deflate_level = {level = 9}
---- Send a RCLootCouncil Comm Message using AceComm-3.0
--- See RCLootCouncil:OnCommReceived() on how to receive these messages.
+--- Send a SageLootCouncil Comm Message using AceComm-3.0
+-- See SageLootCouncil:OnCommReceived() on how to receive these messages.
 -- @param target The receiver of the message. Can be "group", "guild" or "playerName".
 -- @param command The command to send.
 -- @param vararg Any number of arguments to send along. Will be packaged as a table.
-function RCLootCouncil:SendCommand(target, command, ...)
+function SageLootCouncil:SendCommand(target, command, ...)
 	-- send all data as a table, and let receiver unpack it
 	local serialized = self:Serialize(command, {...})
 	local compressed = Deflate:CompressDeflate(serialized, deflate_level)
@@ -561,51 +561,51 @@ function RCLootCouncil:SendCommand(target, command, ...)
 
 	if target == "group" then
 		if self:IsInRaid() then
-			self:SendCommMessage("RCLootCouncil", toSend, "RAID", nil, prio)
+			self:SendCommMessage("SageLootCouncil", toSend, "RAID", nil, prio)
 		elseif self:IsInGroup() then 
-			self:SendCommMessage("RCLootCouncil", toSend, "PARTY", nil, prio)
+			self:SendCommMessage("SageLootCouncil", toSend, "PARTY", nil, prio)
 		--[[elseif num > 0 then -- Party
-			self:SendCommMessage("RCLootCouncil", toSend, "PARTY")]]
+			self:SendCommMessage("SageLootCouncil", toSend, "PARTY")]]
 		else--if self.testMode then -- Alone (testing)
-			self:SendCommMessage("RCLootCouncil", toSend, "WHISPER", self.playerName, prio)
+			self:SendCommMessage("SageLootCouncil", toSend, "WHISPER", self.playerName, prio)
 		end
 
 	elseif target == "guild" then
-		self:SendCommMessage("RCLootCouncil", toSend, "GUILD")
+		self:SendCommMessage("SageLootCouncil", toSend, "GUILD")
 
 	else
 		if self:UnitIsUnit(target,"player") then -- If target == "player"
-			self:SendCommMessage("RCLootCouncil", toSend, "WHISPER", self.playerName)
+			self:SendCommMessage("SageLootCouncil", toSend, "WHISPER", self.playerName)
 		elseif target then
 			-- We cannot send "WHISPER" to a crossrealm player
 			if target:find("-") then
 				if target:find(self.realmName) then -- Our own realm, just send it
-					self:SendCommMessage("RCLootCouncil", toSend, "WHISPER", target)
+					self:SendCommMessage("SageLootCouncil", toSend, "WHISPER", target)
 				else -- Get creative
 					-- Remake command to be "xrealm" and put target and command in the table
-					-- See "RCLootCouncil:HandleXRealmComms()" for more info
+					-- See "SageLootCouncil:HandleXRealmComms()" for more info
 					toSend = self:Serialize("xrealm", {target, command, ...})
-					self:SendCommMessage("RCLootCouncil", toSend, "RAID")
+					self:SendCommMessage("SageLootCouncil", toSend, "RAID")
 				end
 
 			else -- Should also be our own realm
-				self:SendCommMessage("RCLootCouncil", toSend, "WHISPER", target)
+				self:SendCommMessage("SageLootCouncil", toSend, "WHISPER", target)
 			end
 		end
 	end
 end
 
---- Receives RCLootCouncil commands
+--- Receives SageLootCouncil commands
 -- Params are delivered by AceComm-3.0, but we need to extract our data created with the
--- RCLootCouncil:SendCommand function.
+-- SageLootCouncil:SendCommand function.
 -- @usage
 -- To extract the original data using AceSerializer-3.0:
 -- -- local success, command, data = self:Deserialize(serializedMsg)
--- 'data' is a table containing the varargs delivered to RCLootCouncil:SendCommand().
+-- 'data' is a table containing the varargs delivered to SageLootCouncil:SendCommand().
 -- To ensure correct handling of x-realm commands, include this line aswell:
--- -- if RCLootCouncil:HandleXRealmComms(self, command, data, sender) then return end
-function RCLootCouncil:OnCommReceived(prefix, serializedMsg, distri, sender)
-	if prefix == "RCLootCouncil" then
+-- -- if SageLootCouncil:HandleXRealmComms(self, command, data, sender) then return end
+function SageLootCouncil:OnCommReceived(prefix, serializedMsg, distri, sender)
+	if prefix == "SageLootCouncil" then
 		-- data is always a table to be unpacked
 		local decoded = Deflate:DecodeForPrint(serializedMsg)
 		if not decoded then 
@@ -745,7 +745,7 @@ function RCLootCouncil:OnCommReceived(prefix, serializedMsg, distri, sender)
 			end
 			self:Debug("Error in deserializing comm:", command, data);
 		end
-	elseif prefix == "RCLootCouncil_WotLK" then 
+	elseif prefix == "SageLootCouncil_WotLK" then 
 		local decoded_msg = Deflate:DecodeForPrint(serializedMsg)
     	local decompressed_msg = Deflate:DecompressDeflate(decoded_msg)
 		local ok, command, data = self:Deserialize(decompressed_msg)
@@ -756,7 +756,7 @@ function RCLootCouncil:OnCommReceived(prefix, serializedMsg, distri, sender)
 				local serialized_data = self:Serialize("verTestReply", sendData)
 				local compressed_data = Deflate:CompressDeflate(serialized_data, deflate_level)
 				local encoded = Deflate:EncodeForPrint(compressed_data)
-				self:SendCommMessage("RCLootCouncil_WotLK", encoded, "WHISPER", sender)
+				self:SendCommMessage("SageLootCouncil_WotLK", encoded, "WHISPER", sender)
 			end
 		end
 		
@@ -765,20 +765,20 @@ end
 
 -- Used to make sure "WHISPER" type xrealm comms is handled properly.
 -- Include this right after unpacking messages. Assumes you use "OnCommReceived" as comm handler:
--- if RCLootCouncil:HandleXRealmComms(self, command, data, sender) then return end
-function RCLootCouncil:HandleXRealmComms(mod, command, data, sender)
+-- if SageLootCouncil:HandleXRealmComms(self, command, data, sender) then return end
+function SageLootCouncil:HandleXRealmComms(mod, command, data, sender)
 	if command == "xrealm" then
 		local target = tremove(data, 1)
 		if self:UnitIsUnit(target, "player") then
 			local command = tremove(data, 1)
-			mod:OnCommReceived("RCLootCouncil", self:Serialize(command, data), "WHISPER", sender)
+			mod:OnCommReceived("SageLootCouncil", self:Serialize(command, data), "WHISPER", sender)
 		end
 		return true
 	end
 	return false
 end
 
-function RCLootCouncil:Debug(msg, ...)
+function SageLootCouncil:Debug(msg, ...)
 	if self.debug then
 		if select("#", ...) > 0 then
 			self:Print("|cffcb6700debug:|r "..tostring(msg).."|cffff6767", ...)
@@ -786,11 +786,11 @@ function RCLootCouncil:Debug(msg, ...)
 			self:Print("|cffcb6700debug:|r "..tostring(msg).."|r")
 		end
 	end
-	RCLootCouncil:DebugLog(msg, ...)
+	SageLootCouncil:DebugLog(msg, ...)
 end
 
 local date_to_debug_log = true
-function RCLootCouncil:DebugLog(msg, ...)
+function SageLootCouncil:DebugLog(msg, ...)
 	if date_to_debug_log then tinsert(debugLog, date("%x")); date_to_debug_log = false; end
 	local time = date("%X", time())
 	msg = time.." - ".. tostring(msg)
@@ -801,7 +801,7 @@ function RCLootCouncil:DebugLog(msg, ...)
 	tinsert(debugLog, msg)
 end
 
-function RCLootCouncil:Test(num)
+function SageLootCouncil:Test(num)
 	self:Debug("Test", num)
 	local testItems = {}
 	for i = 1, 18 do 
@@ -836,7 +836,7 @@ function RCLootCouncil:Test(num)
 end
 
 local interface_options_old_cancel = InterfaceOptionsFrameCancel:GetScript("OnClick")
-function RCLootCouncil:EnterCombat()
+function SageLootCouncil:EnterCombat()
 	-- Hack to remove CompactRaidGroup taint
 	-- Make clicking cancel the same as clicking okay
 	InterfaceOptionsFrameCancel:SetScript("OnClick", function()
@@ -853,7 +853,7 @@ function RCLootCouncil:EnterCombat()
 	end
 end
 
-function RCLootCouncil:LeaveCombat()
+function SageLootCouncil:LeaveCombat()
 	-- Revert
 	InterfaceOptionsFrameCancel:SetScript("OnClick", interface_options_old_cancel)
 	self.inCombat = false
@@ -871,7 +871,7 @@ end
 	Used by getCurrentGear to determine slot types
 	Inspired by EPGPLootMaster
 --]]
-RCLootCouncil.INVTYPE_Slots = {
+SageLootCouncil.INVTYPE_Slots = {
 		INVTYPE_HEAD		    = "HeadSlot",
 		INVTYPE_NECK		    = "NeckSlot",
 		INVTYPE_SHOULDER	    = "ShoulderSlot",
@@ -897,7 +897,7 @@ RCLootCouncil.INVTYPE_Slots = {
 		INVTYPE_RELIC			= {"RangedSlot"}
 }
 
-RCLootCouncil.Slots_INVTYPE = {
+SageLootCouncil.Slots_INVTYPE = {
 	["HeadSlot"]			= INVTYPE_HEAD,
 	["NeckSlot"]			= INVTYPE_NECK,
 	["ShoulderSlot"]		= INVTYPE_SHOULDER,
@@ -929,18 +929,18 @@ RCLootCouncil.Slots_INVTYPE = {
 	["RangedSlot"]			= INVTYPE_RELIC,
 }
 
-function RCLootCouncil:GetPlayersGear(link, equipLoc)
+function SageLootCouncil:GetPlayersGear(link, equipLoc)
 	local itemID = self:GetItemIDFromLink(link) -- Convert to itemID
 	self:DebugLog("GetPlayersGear", itemID, equipLoc)
 	if not itemID then return nil, nil; end
 	local item1, item2;
 	-- check if the item is a token, and if it is, return the matching current gear
-	if RCTokenTable[itemID] then
-		if RCTokenTable[itemID] == "Trinket" then -- We need to return both trinkets
+	if SageTokenTable[itemID] then
+		if SageTokenTable[itemID] == "Trinket" then -- We need to return both trinkets
 			item1 = GetInventoryItemLink("player", GetInventorySlotInfo("TRINKET0SLOT"))
 			item2 = GetInventoryItemLink("player", GetInventorySlotInfo("TRINKET1SLOT"))
 		else	-- Just return the slot from the tokentable
-			item1 = GetInventoryItemLink("player", GetInventorySlotInfo(RCTokenTable[itemID]))
+			item1 = GetInventoryItemLink("player", GetInventorySlotInfo(SageTokenTable[itemID]))
 		end
 		return item1, item2
 	end
@@ -966,7 +966,7 @@ function RCLootCouncil:GetPlayersGear(link, equipLoc)
 	return item1, item2;
 end
 
-function RCLootCouncil:Timer(type, ...)
+function SageLootCouncil:Timer(type, ...)
 	self:Debug("Timer "..type.." passed")
 	if type == "LocalizeSubTypes" then
 		self:LocalizeSubTypes()
@@ -1047,21 +1047,21 @@ local autopassOverride = {
 	"INVTYPE_CLOAK",
 }
 
-function RCLootCouncil:AutoPassCheck(subType, equipLoc, link)
+function SageLootCouncil:AutoPassCheck(subType, equipLoc, link)
 	if not tContains(autopassOverride, equipLoc) then
 		if subType and autopassTable[self.db.global.localizedSubTypes[subType]] then
 			return tContains(autopassTable[self.db.global.localizedSubTypes[subType]], self.playerClass)
 		end
 		-- The item wasn't a type we check for, but it might be a token
 		local id = type(link) == "number" and link or self:GetItemIDFromLink(link) -- Convert to id if needed
-		if RCTokenClasses[id] then -- It's a token
-			return not tContains(RCTokenClasses[id], self.playerClass)
+		if SageTokenClasses[id] then -- It's a token
+			return not tContains(SageTokenClasses[id], self.playerClass)
 		end
 	end
 	return false
 end
 
-function RCLootCouncil:LocalizeSubTypes()
+function SageLootCouncil:LocalizeSubTypes()
 	if self.db.global.localizedSubTypes.created then return end -- We only need to create it once
 	-- Get the item info
 	for _, item in pairs(subTypeLookup) do
@@ -1085,7 +1085,7 @@ function RCLootCouncil:LocalizeSubTypes()
 	end
 end
 
-function RCLootCouncil:IsItemBoE(item)
+function SageLootCouncil:IsItemBoE(item)
 	if not item then return false end
 	GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 	GameTooltip:SetHyperlink(item)
@@ -1112,7 +1112,7 @@ end
 -- @param equipLoc	The item in the session's equipLoc
 -- @param note			The player's note
 -- @returns A formatted table that can be passed directly to :SendCommand("group", "response", -return-)
-function RCLootCouncil:CreateResponse(session, link, ilvl, response, equipLoc, note)
+function SageLootCouncil:CreateResponse(session, link, ilvl, response, equipLoc, note)
 	self:DebugLog("CreateResponse", session, link, ilvl, response, equipLoc, note)
 	local g1, g2 = self:GetPlayersGear(link, equipLoc)
 	local diff = nil
@@ -1147,7 +1147,7 @@ function RCLootCouncil:CreateResponse(session, link, ilvl, response, equipLoc, n
 		}
 end
 
-function RCLootCouncil:GetPlayersGuildRank()
+function SageLootCouncil:GetPlayersGuildRank()
 	self:DebugLog("GetPlayersGuildRank()")
 	GuildRoster() -- let the event trigger this func
 	if IsInGuild() then
@@ -1164,14 +1164,14 @@ function RCLootCouncil:GetPlayersGuildRank()
 	end
 end
 
-function RCLootCouncil:GetPlayerInfo()
+function SageLootCouncil:GetPlayerInfo()
 	-- Check if the player has enchanting
 	local enchant, lvl = IsSpellKnown(13262), 0 -- disenchant spell 
 	if enchant then lvl = 450 end -- assume max enchanting idc
 	return self.playerName, self.playerClass, self:GetPlayerRole(), self.guildRank, enchant, lvl
 end
 
-function RCLootCouncil:GetUnitRole(unit)
+function SageLootCouncil:GetUnitRole(unit)
 	local gtrole = LibGroupTalents:GetUnitRole(unit)
 	local role = "DAMAGER"
 	
@@ -1184,18 +1184,18 @@ function RCLootCouncil:GetUnitRole(unit)
 	return role
 end
 
-function RCLootCouncil:GetPlayerRole()
+function SageLootCouncil:GetPlayerRole()
 	return self:GetUnitRole("player")	
 end
 
-function RCLootCouncil.TranslateRole(role) -- reasons
-	return (role and role ~= "") and RCLootCouncil.roleTable[role] or ""
+function SageLootCouncil.TranslateRole(role) -- reasons
+	return (role and role ~= "") and SageLootCouncil.roleTable[role] or ""
 end
 
 --- GetGuildRanks
 -- Returns a lookup table containing GuildRankNames and their index
 -- @return table "GuildRankName" = rankIndex
-function RCLootCouncil:GetGuildRanks()
+function SageLootCouncil:GetGuildRanks()
 	if not IsInGuild() then return {} end
 	self:DebugLog("GetGuildRankNum()")
 	GuildRoster()
@@ -1207,7 +1207,7 @@ function RCLootCouncil:GetGuildRanks()
 	return t;
 end
 
-function RCLootCouncil:GetNumberOfDaysFromNow(oldDate)
+function SageLootCouncil:GetNumberOfDaysFromNow(oldDate)
 	local d, m, y = strsplit("/", oldDate, 3)
 	local sinceEpoch = time({year = "20"..y, month = m, day = d}) -- convert from string to seconds since epoch
 	local diff = date("*t", time() - sinceEpoch) -- get the difference as a table
@@ -1215,7 +1215,7 @@ function RCLootCouncil:GetNumberOfDaysFromNow(oldDate)
 	return diff.day - 1, diff.month - 1, diff.year - 1970
 end
 
-function RCLootCouncil:ConvertDateToString(day, month, year)
+function SageLootCouncil:ConvertDateToString(day, month, year)
 	local text = format(L["x days"], day)
 	if year > 0 then
 		text = format(L["days, x months, y years"], text, month, year)
@@ -1225,7 +1225,7 @@ function RCLootCouncil:ConvertDateToString(day, month, year)
 	return text;
 end
 
-function RCLootCouncil:OnEvent(event, ...)
+function SageLootCouncil:OnEvent(event, ...)
 	if event == "PARTY_LOOT_METHOD_CHANGED" then
 		self:Debug("Event:", event, ...)
 		self:NewMLCheck()
@@ -1265,7 +1265,7 @@ function RCLootCouncil:OnEvent(event, ...)
 	end
 end
 
-function RCLootCouncil:NewMLCheck()
+function SageLootCouncil:NewMLCheck()
 	local old_ml = self.masterLooter
 	self.isMasterLooter, self.masterLooter = self:GetML()
 	self:Debug("isMasterLooter", self.isMasterLooter, "masterLooter", self.masterLooter)
@@ -1288,18 +1288,18 @@ function RCLootCouncil:NewMLCheck()
 
 	-- We're ML and must ask the player for usage
 	elseif self.isMasterLooter and db.usage.ask_ml then
-		return LibDialog:Spawn("RCLOOTCOUNCIL_CONFIRM_USAGE")
+		return LibDialog:Spawn("SAGELOOTCOUNCIL_CONFIRM_USAGE")
 	end
 end
 
-function RCLootCouncil:OnRaidEnter(arg)
+function SageLootCouncil:OnRaidEnter(arg)
 	-- NOTE: We shouldn't need to call GetML() as it's most likely called on "LOOT_METHOD_CHANGED"
 	-- There's no ML, and lootmethod ~= ML, but we are the group leader
 	if not self.masterLooter and (IsRaidLeader() or IsPartyLeader()) then
 		-- We don't need to ask the player for usage, so change loot method to master, and make the player ML
 		if db.usage.leader then
 			SetLootMethod("master", self.playerName)
-			self:Print(L[" you are now the Master Looter and RCLootCouncil is now handling looting."])
+			self:Print(L[" you are now the Master Looter and SageLootCouncil is now handling looting."])
 			if db.autoAward and GetLootThreshold() ~= 2 and GetLootThreshold() > db.autoAwardLowerThreshold  then
 				self:Print(L["Changing loot threshold to enable Auto Awarding"])
 				SetLootThreshold(db.autoAwardLowerThreshold >= 2 and db.autoAwardLowerThreshold or 2)
@@ -1310,13 +1310,13 @@ function RCLootCouncil:OnRaidEnter(arg)
 
 		-- We must ask the player for usage
 		elseif db.usage.ask_leader then
-			return LibDialog:Spawn("RCLOOTCOUNCIL_CONFIRM_USAGE")
+			return LibDialog:Spawn("SAGELOOTCOUNCIL_CONFIRM_USAGE")
 		end
 	end
 end
 
 -- Returns boolean, mlName. (true if the player is ML), (nil if there's no ML)
-function RCLootCouncil:GetML()
+function SageLootCouncil:GetML()
 	self:DebugLog("GetML()")
 	if self:GetNumGroupMembers() == 0 and (self.testMode or self.nnp) then -- always the player when testing alone
 		return true, self.playerName
@@ -1340,7 +1340,7 @@ function RCLootCouncil:GetML()
 	return false, nil;
 end
 
-function RCLootCouncil:IsCouncil(name)
+function SageLootCouncil:IsCouncil(name)
 	local ret = tContains(self.council, name)
 	if self:UnitIsUnit(name, self.playerName) and self.isMasterLooter or self.nnp then ret = true end -- ML and nnp is always council
 	self:DebugLog(tostring(ret).." =", "IsCouncil", name)
@@ -1348,16 +1348,16 @@ function RCLootCouncil:IsCouncil(name)
 end
 
 
-function RCLootCouncil:SessionError(...)
+function SageLootCouncil:SessionError(...)
 	self:Print(L["session_error"])
 	self:Debug(...)
 end
 
-function RCLootCouncil:Getdb()
+function SageLootCouncil:Getdb()
 	return db
 end
 
-function RCLootCouncil:GetHistoryDB()
+function SageLootCouncil:GetHistoryDB()
 	if self.isMasterLooter or (not self:IsInGroup() and not self:IsInRaid()) then 
 		return self.lootDB.factionrealm
 	else 
@@ -1365,18 +1365,18 @@ function RCLootCouncil:GetHistoryDB()
 	end
 end
 
-function RCLootCouncil:GetAnnounceChannel(channel)
+function SageLootCouncil:GetAnnounceChannel(channel)
 	return channel == "group" and (self:IsInRaid() and "RAID" or "PARTY") or channel
 end
 
-function RCLootCouncil:GetItemIDFromLink(link)
+function SageLootCouncil:GetItemIDFromLink(link)
 	return tonumber(strmatch(link, "item:(%d+):"))
 end
 
 --- Custom, better UnitIsUnit() function
 -- Blizz UnitIsUnit() doesn't know how to compare unit-realm with unit
 -- Seems to be because unit-realm isn't a valid unitid
-function RCLootCouncil:UnitIsUnit(unit1, unit2)
+function SageLootCouncil:UnitIsUnit(unit1, unit2)
 	if not unit1 or not unit2 then return false end
 	-- Remove realm names, if any
 	if strfind(unit1, "-", nil, true) ~= nil then
@@ -1395,7 +1395,7 @@ end
 --- Enables a userModule if set, defaultModule otherwise
 -- @paramsig module
 -- @param module String, must correspond to a index in self.defaultModules
-function RCLootCouncil:CallModule(module)
+function SageLootCouncil:CallModule(module)
 	if not self.enabled then return end -- Don't call modules unless enabled
 	self:EnableModule(userModules[module] or defaultModules[module])
 end
@@ -1405,7 +1405,7 @@ end
 -- @paramsig module
 -- @param module String, must correspond to a index in self.defaultModules
 -- @return The module object of the active module or nil if not found. Prioritises userModules if set
-function RCLootCouncil:GetActiveModule(module)
+function SageLootCouncil:GetActiveModule(module)
 	return self:GetModule(userModules[module] or defaultModules[module], false)
 end
 
@@ -1413,7 +1413,7 @@ end
 -- The custom module must have all functions that a default module can be called with
 -- @param type Index (string) in userModules
 -- @param The name passed to AceAddon:NewModule()
-function RCLootCouncil:RegisterUserModule(type, name)
+function SageLootCouncil:RegisterUserModule(type, name)
 	assert(defaultModules[type], format("Module \"%s\" is not a default module.", tostring(type)))
 	userModules[type] = name
 end
@@ -1426,7 +1426,7 @@ end
 ---------------------------------------------------------------------------
 
 --- Used as a "DoCellUpdate" function for lib-st
-function RCLootCouncil.SetCellClassIcon(rowFrame, frame, data, cols, row, realrow, column, fShow, table, class)
+function SageLootCouncil.SetCellClassIcon(rowFrame, frame, data, cols, row, realrow, column, fShow, table, class)
 	local celldata = data[realrow].cols and data[realrow].cols[column] or data[realrow][column]
 	local class = celldata.args and celldata.args[1] or class
 	if class then
@@ -1439,7 +1439,7 @@ function RCLootCouncil.SetCellClassIcon(rowFrame, frame, data, cols, row, realro
 end
 
 --- Returns a color table for use with lib-st
-function RCLootCouncil:GetClassColor(class)
+function SageLootCouncil:GetClassColor(class)
 	local color = RAID_CLASS_COLORS[class]
 	if not color then
 		-- if class not found, return epic color.
@@ -1450,11 +1450,11 @@ function RCLootCouncil:GetClassColor(class)
 	end
 end
 
-function RCLootCouncil:RGBToHex(r,g,b)
+function SageLootCouncil:RGBToHex(r,g,b)
 	return string.format("%02x%02x%02x",255*r, 255*g, 255*b)
 end
 
---- Creates a standard frame for RCLootCouncil with title, minimizuing, positioning and zoom support.
+--- Creates a standard frame for SageLootCouncil with title, minimizuing, positioning and zoom support.
 --		Adds Minimize(), Maximize() and IsMinimized() functions on the frame, and registers it for hide on combat.
 --		SetWidth/SetHeight called on frame will also be called on frame.content
 --		Minimizing is done by double clicking the title. The returned frame and frame.title is NOT minimized.
@@ -1466,7 +1466,7 @@ end
 -- @param width The width of the titleframe, defaults to 250
 -- @param height Height of the frame, defaults to 325
 -- @return The frame object
-function RCLootCouncil:CreateFrame(name, cName, title, width, height)
+function SageLootCouncil:CreateFrame(name, cName, title, width, height)
 	local f = CreateFrame("Frame", name, nil) -- LibWindow seems to work better with nil parent
 	f:Hide()
 	f:SetFrameStrata("HIGH")
@@ -1561,11 +1561,11 @@ function RCLootCouncil:CreateFrame(name, cName, title, width, height)
 	return f
 end
 
---- Creates a standard button for RCLootCouncil
+--- Creates a standard button for SageLootCouncil
 -- @param text The button's text
 -- @param parent The frame that should hold the button
 -- @return The button object
-function RCLootCouncil:CreateButton(text, parent)
+function SageLootCouncil:CreateButton(text, parent)
 	local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
 	b:SetText(text)
 	b:SetSize(100,25)
@@ -1575,7 +1575,7 @@ end
 --- Displays a tooltip anchored to the mouse
 -- @paramsig ...
 -- @param ... Lines to be added.
-function RCLootCouncil:CreateTooltip(...)
+function SageLootCouncil:CreateTooltip(...)
 	GameTooltip:SetOwner(UIParent, "ANCHOR_CURSOR")
 	for i = 1, select("#", ...) do
 		GameTooltip:AddLine(select(i, ...),1,1,1)
@@ -1586,14 +1586,14 @@ end
 --- Displays a hyperlink tooltip
 -- @paramsig link
 -- @param link The link to display
-function RCLootCouncil:CreateHypertip(link)
+function SageLootCouncil:CreateHypertip(link)
 	if not link or link == "" then return end
 	GameTooltip:SetOwner(UIParent, "ANCHOR_CURSOR")
 	GameTooltip:SetHyperlink(link)
 end
 
 --- Hide the tooltip created with :CreateTooltip()
-function RCLootCouncil:HideTooltip()
+function SageLootCouncil:HideTooltip()
 	GameTooltip:Hide()
 end
 
@@ -1601,28 +1601,28 @@ end
 --- Returns the text of a button, returning settings from mldb, or default buttons
 -- @paramsig index
 -- @param index The button's index
-function RCLootCouncil:GetButtonText(i)
+function SageLootCouncil:GetButtonText(i)
 	return (self.mldb.buttons and self.mldb.buttons[i]) and self.mldb.buttons[i].text or db.buttons[i] and db.buttons[i].text or "Unknown"
 end
 
 --- The following functions returns the text, sort or color of a response, returning a result from mldb if possible, otherwise the default responses.
 -- @paramsig response
 -- @param response Index in db.responses
-function RCLootCouncil:GetResponseText(response)
+function SageLootCouncil:GetResponseText(response)
 	return (self.mldb.responses and self.mldb.responses[response]) and self.mldb.responses[response].text or db.responses[response] and db.responses[response].text or "Unknown Response"
 end
 
-function RCLootCouncil:GetResponseColor(response)
+function SageLootCouncil:GetResponseColor(response)
 	local color = (self.mldb.responses and self.mldb.responses[response]) and self.mldb.responses[response].color or db.responses[response] and db.responses[response].color or {1, 1, 1, 1}
 	return unpack(color)
 end
 
-function RCLootCouncil:GetResponseColorTable(response)
+function SageLootCouncil:GetResponseColorTable(response)
 	local color = (self.mldb.responses and self.mldb.responses[response]) and self.mldb.responses[response].color or db.responses[response] and db.responses[response].color or {1, 1, 1, 1}
 	return color
 end
 
-function RCLootCouncil:GetResponseSort(response)
+function SageLootCouncil:GetResponseSort(response)
 	return (self.mldb.responses and self.mldb.responses[response]) and self.mldb.responses[response].sort or db.responses[response].sort
 end
 

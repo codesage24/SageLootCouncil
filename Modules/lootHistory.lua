@@ -1,11 +1,9 @@
--- Author      : Potdisc
--- Create Date : 8/6/2015
 -- DefaultModule
 -- lootHistory.lua	Adds the interface for displaying the collected loot history
 
-local addon = LibStub("AceAddon-3.0"):GetAddon("RCLootCouncil")
-local LootHistory = addon:NewModule("RCLootHistory")
-local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
+local addon = LibStub("AceAddon-3.0"):GetAddon("SageLootCouncil")
+local LootHistory = addon:NewModule("SageLootHistory")
+local L = LibStub("AceLocale-3.0"):GetLocale("SageLootCouncil")
 local lootDB, scrollCols, data, db, numLootWon;
 --[[ data structure:
 data[date][playerName] = {
@@ -27,10 +25,10 @@ function LootHistory:OnInitialize()
 		{name = L["Item"],		width = 250, 				}, 	-- Item string
 		{name = L["Reason"],		width = 230, comparesort = self.ResponseSort, sort = "asc", sortnext = 2},	-- Response aka the text supplied to lootDB...response
 	}
-	filterMenu = CreateFrame("Frame", "RCLootCouncil_LootHistory_FilterMenu", UIParent, "Lib_UIDropDownMenuTemplate")
+	filterMenu = CreateFrame("Frame", "SageLootCouncil_LootHistory_FilterMenu", UIParent, "Lib_UIDropDownMenuTemplate")
 	Lib_UIDropDownMenu_Initialize(filterMenu, self.FilterMenu, "MENU")
 	--MoreInfo
-	self.moreInfo = CreateFrame( "GameTooltip", "RCLootHistoryMoreInfo", nil, "GameTooltipTemplate" )
+	self.moreInfo = CreateFrame( "GameTooltip", "SageLootHistoryMoreInfo", nil, "GameTooltipTemplate" )
 end
 
 function LootHistory:OnEnable()
@@ -156,12 +154,12 @@ function LootHistory.FilterFunc(table, row)
 	end
 
 	local responseFilter = true -- default to show
-	if not db.modules["RCLootHistory"].filters then return nameAndDate end -- db hasn't been initialized
+	if not db.modules["SageLootHistory"].filters then return nameAndDate end -- db hasn't been initialized
 	local response = row.response
 	if response == "AUTOPASS" or response == "PASS" or type(response) == "number" then
-		responseFilter = db.modules["RCLootHistory"].filters[response]
+		responseFilter = db.modules["SageLootHistory"].filters[response]
 	else -- Filter out the status texts
-		responseFilter = db.modules["RCLootHistory"].filters["STATUS"]
+		responseFilter = db.modules["SageLootHistory"].filters["STATUS"]
 	end
 
 	return nameAndDate and responseFilter -- Either one can filter the entry
@@ -261,7 +259,7 @@ end
 
 function LootHistory:GetFrame()
 	if self.frame then return self.frame end
-	local f = addon:CreateFrame("DefaultRCLootHistoryFrame", "history", L["RCLootCouncil Loot History"], 250, 480)
+	local f = addon:CreateFrame("DefaultSageLootHistoryFrame", "history", L["SageLootCouncil Loot History"], 250, 480)
 	local st = LibStub("ScrollingTable"):CreateST(scrollCols, NUM_ROWS, ROW_HEIGHT, { ["r"] = 1.0, ["g"] = 0.9, ["b"] = 0.0, ["a"] = 0.5 }, f.content)
 	st.frame:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 10)
 	st:SetFilter(self.FilterFunc)
@@ -397,14 +395,14 @@ function LootHistory.FilterMenu(menu, level)
 			for i = 1, addon.mldb.numButtons or db.numButtons do
 				data[i] = i
 			end
-			if not db.modules["RCLootHistory"].filters then -- Create the db entry
+			if not db.modules["SageLootHistory"].filters then -- Create the db entry
 				addon:DebugLog("Created LootHistory filters")
-				db.modules["RCLootHistory"].filters = {}
+				db.modules["SageLootHistory"].filters = {}
 			end
 			for k in pairs(data) do -- Update the db entry to make sure we have all buttons in it
-				if type(db.modules["RCLootHistory"].filters[k]) ~= "boolean" then
+				if type(db.modules["SageLootHistory"].filters[k]) ~= "boolean" then
 					addon:Debug("Didn't contain "..k)
-					db.modules["RCLootHistory"].filters[k] = true -- Default as true
+					db.modules["SageLootHistory"].filters[k] = true -- Default as true
 				end
 			end
 			info.text = L["Filter"]
@@ -419,10 +417,10 @@ function LootHistory.FilterMenu(menu, level)
 				info.colorCode = "|cff"..addon:RGBToHex(addon:GetResponseColor(k))
 				info.func = function()
 					addon:Debug("Update Filter")
-					db.modules["RCLootHistory"].filters[k] = not db.modules["RCLootHistory"].filters[k]
+					db.modules["SageLootHistory"].filters[k] = not db.modules["SageLootHistory"].filters[k]
 					LootHistory:Update()
 				end
-				info.checked = db.modules["RCLootHistory"].filters[k]
+				info.checked = db.modules["SageLootHistory"].filters[k]
 				Lib_UIDropDownMenu_AddButton(info, level)
 			end
 			for k in pairs(data) do -- A bit redundency, but it makes sure these "specials" comes last
@@ -436,10 +434,10 @@ function LootHistory.FilterMenu(menu, level)
 					end
 					info.func = function()
 						addon:Debug("Update Filter")
-						db.modules["RCLootHistory"].filters[k] = not db.modules["RCLootHistory"].filters[k]
+						db.modules["SageLootHistory"].filters[k] = not db.modules["SageLootHistory"].filters[k]
 						LootHistory:Update()
 					end
-					info.checked = db.modules["RCLootHistory"].filters[k]
+					info.checked = db.modules["SageLootHistory"].filters[k]
 					Lib_UIDropDownMenu_AddButton(info, level)
 				end
 			end

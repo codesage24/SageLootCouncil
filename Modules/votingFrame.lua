@@ -1,13 +1,11 @@
--- Author      : Potdisc
--- Create Date : 12/15/2014 8:54:35 PM
 -- DefaultModule
 --	votingFrame.lua	Displays everything related to handling loot for all members.
 --		Will only show certain aspects depending on addon.isMasterLooter, addon.isCouncil and addon.mldb.observe
 
-local addon = LibStub("AceAddon-3.0"):GetAddon("RCLootCouncil")
-local RCVotingFrame = addon:NewModule("RCVotingFrame", "AceComm-3.0", "AceTimer-3.0")
+local addon = LibStub("AceAddon-3.0"):GetAddon("SageLootCouncil")
+local SageVotingFrame = addon:NewModule("SageVotingFrame", "AceComm-3.0", "AceTimer-3.0")
 local LibDialog = LibStub("LibDialog-1.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
+local L = LibStub("AceLocale-3.0"):GetLocale("SageLootCouncil")
 local Deflate = LibStub("LibDeflate")
 
 local ROW_HEIGHT = 20;
@@ -27,7 +25,7 @@ local enchanters -- Enchanters drop down menu frame
 local guildRanks = {} -- returned from addon:GetGuildRanks()
 local GuildRankSort, ResponseSort -- Initialize now to avoid errors
 
-function RCVotingFrame:OnInitialize()
+function SageVotingFrame:OnInitialize()
 	self.scrollCols = {
 		{ name = "",															sortnext = 2,		width = 20},	-- 1 Class
 		{ name = L["Name"],														sortnext = 4,		width = 80},	-- 2 Candidate Name
@@ -42,23 +40,23 @@ function RCVotingFrame:OnInitialize()
 		{ name = L["Notes"],		align = "CENTER",												width = 40},	-- 11 Note icon
 		{ name = L["Roll"],			align = "CENTER", 							sortnext = 4,		width = 30},	-- 12 Roll
 	}
-	menuFrame = CreateFrame("Frame", "RCLootCouncil_VotingFrame_RightclickMenu", UIParent, "Lib_UIDropDownMenuTemplate")
-	filterMenu = CreateFrame("Frame", "RCLootCouncil_VotingFrame_FilterMenu", UIParent, "Lib_UIDropDownMenuTemplate")
-	enchanters = CreateFrame("Frame", "RCLootCouncil_VotingFrame_EnchantersMenu", UIParent, "Lib_UIDropDownMenuTemplate")
+	menuFrame = CreateFrame("Frame", "SageLootCouncil_VotingFrame_RightclickMenu", UIParent, "Lib_UIDropDownMenuTemplate")
+	filterMenu = CreateFrame("Frame", "SageLootCouncil_VotingFrame_FilterMenu", UIParent, "Lib_UIDropDownMenuTemplate")
+	enchanters = CreateFrame("Frame", "SageLootCouncil_VotingFrame_EnchantersMenu", UIParent, "Lib_UIDropDownMenuTemplate")
 	Lib_UIDropDownMenu_Initialize(menuFrame, self.RightClickMenu, "MENU")
 	Lib_UIDropDownMenu_Initialize(filterMenu, self.FilterMenu)
 	Lib_UIDropDownMenu_Initialize(enchanters, self.EnchantersMenu)
 end
 
-function RCVotingFrame:OnEnable()
-	self:RegisterComm("RCLootCouncil")
+function SageVotingFrame:OnEnable()
+	self:RegisterComm("SageLootCouncil")
 	db = addon:Getdb()
 	active = true
-	moreInfo = db.modules["RCVotingFrame"].moreInfo
+	moreInfo = db.modules["SageVotingFrame"].moreInfo
 	self.frame = self:GetFrame()
 end
 
-function RCVotingFrame:OnDisable() -- We never really call this
+function SageVotingFrame:OnDisable() -- We never really call this
 	self:Hide()
 	self.frame:SetParent(nil)
 	self.frame = nil
@@ -68,13 +66,13 @@ function RCVotingFrame:OnDisable() -- We never really call this
 	self:UnregisterAllComm()
 end
 
-function RCVotingFrame:Hide()
+function SageVotingFrame:Hide()
 	addon:Debug("Hide VotingFrame")
 	self.frame.moreInfo:Hide()
 	self.frame:Hide()
 end
 
-function RCVotingFrame:Show()
+function SageVotingFrame:Show()
 	if self.frame then
 		councilInGroup = addon:GetCouncilInGroup()
 		self.frame:Show()
@@ -84,14 +82,14 @@ function RCVotingFrame:Show()
 	end
 end
 
-function RCVotingFrame:EndSession(hide)
+function SageVotingFrame:EndSession(hide)
 	active = false -- The session has ended, so deactivate
 	self:Update()
 	if hide then self:Hide() end -- Hide if need be
 end
 
-function RCVotingFrame:OnCommReceived(prefix, serializedMsg, distri, sender)
-	if prefix == "RCLootCouncil" then
+function SageVotingFrame:OnCommReceived(prefix, serializedMsg, distri, sender)
+	if prefix == "SageLootCouncil" then
 		-- data is always a table to be unpacked
 		local decoded = Deflate:DecodeForPrint(serializedMsg)
 		if not decoded then 
@@ -186,7 +184,7 @@ function RCVotingFrame:OnCommReceived(prefix, serializedMsg, distri, sender)
 				if db.autoOpen then
 					self:Show()
 				else
-					addon:Print(L['A new session has begun, type "/rc open" to open the voting frame.'])
+					addon:Print(L['A new session has begun, type "/slc open" to open the voting frame.'])
 				end
 				guildRanks = addon:GetGuildRanks() -- Just update it on every session
 
@@ -203,7 +201,7 @@ end
 
 -- Getter/Setter for candidate data
 -- Handles errors
-function RCVotingFrame:SetCandidateData(session, candidate, data, val)
+function SageVotingFrame:SetCandidateData(session, candidate, data, val)
 	local function Set(session, candidate, data, val)
 		lootTable[session].candidates[candidate][data] = val
 	end
@@ -211,7 +209,7 @@ function RCVotingFrame:SetCandidateData(session, candidate, data, val)
 	if not ok then addon:Debug("Error in 'SetCandidateData':", arg, session, candidate, data, val) end
 end
 
-function RCVotingFrame:GetCandidateData(session, candidate, data)
+function SageVotingFrame:GetCandidateData(session, candidate, data)
 	local function Get(session, candidate, data)
 		return lootTable[session].candidates[candidate][data]
 	end
@@ -220,7 +218,7 @@ function RCVotingFrame:GetCandidateData(session, candidate, data)
 	else return arg end
 end
 
-function RCVotingFrame:Setup(table)
+function SageVotingFrame:Setup(table)
 	--lootTable[session] = {bagged, lootSlot, awarded, name, link, quality, ilvl, type, subType, equipLoc, texture, boe}
 	lootTable = table -- Extract all the data we get
 	for session, t in ipairs(lootTable) do -- and build the rest (candidates)
@@ -260,7 +258,7 @@ function RCVotingFrame:Setup(table)
 	self:SwitchSession(session)
 end
 
-function RCVotingFrame:HandleVote(session, name, vote, voter)
+function SageVotingFrame:HandleVote(session, name, vote, voter)
 	-- Do the vote
 	if not lootTable or not lootTable[session] or not lootTable[session].candidates or not lootTable[session].candidates[name] then 
 		return 
@@ -282,7 +280,7 @@ function RCVotingFrame:HandleVote(session, name, vote, voter)
 	self:UpdatePeopleToVote()
 end
 
-function RCVotingFrame:DoRandomRolls(ses)
+function SageVotingFrame:DoRandomRolls(ses)
 	for _, v in pairs (lootTable[ses].candidates) do
 		v.roll = math.random(100)
 	end
@@ -292,7 +290,7 @@ end
 ------------------------------------------------------------------
 --	Visuals														--
 ------------------------------------------------------------------
-function RCVotingFrame:Update()
+function SageVotingFrame:Update()
 	self.frame.st:SortData()
 	-- update awardString
 	if lootTable[session] and lootTable[session].awarded then
@@ -315,7 +313,7 @@ function RCVotingFrame:Update()
 	end
 end
 
-function RCVotingFrame:SwitchSession(s)
+function SageVotingFrame:SwitchSession(s)
 	addon:Debug("SwitchSession", s)
 	-- Start with setting up some statics
 	local old = session
@@ -348,7 +346,7 @@ function RCVotingFrame:SwitchSession(s)
 	self:UpdatePeopleToVote()
 end
 
-function RCVotingFrame:BuildST()
+function SageVotingFrame:BuildST()
 	local rows = {}
 	local i = 1
 	for name in pairs(candidates) do
@@ -374,7 +372,7 @@ function RCVotingFrame:BuildST()
 	self.frame.st:SetData(rows)
 end
 
-function RCVotingFrame:UpdateMoreInfo(row, data)
+function SageVotingFrame:UpdateMoreInfo(row, data)
 	addon:Debug("MoreInfo:", moreInfo)
 	local name
 	if data then
@@ -414,7 +412,7 @@ function RCVotingFrame:UpdateMoreInfo(row, data)
 			local historical_item_slot = select(9, GetItemInfo(itemid))
 
 			if not historical_item_slot or historical_item_slot == "" then 
-				historical_item_slot = RCTokenTable[itemid]
+				historical_item_slot = SageTokenTable[itemid]
 
 				if not addon.Slots_INVTYPE[item_slot] then -- when we are comparing a normal item with a token we won previously
 					local original = item_slot
@@ -477,11 +475,11 @@ function RCVotingFrame:UpdateMoreInfo(row, data)
 end
 
 
-function RCVotingFrame:GetFrame()
+function SageVotingFrame:GetFrame()
 	if self.frame then return self.frame end
 
 	-- Container and title
-	local f = addon:CreateFrame("DefaultRCLootCouncilFrame", "votingframe", L["RCLootCouncil Voting Frame"], 250, 420)
+	local f = addon:CreateFrame("DefaultSageLootCouncilFrame", "votingframe", L["SageLootCouncil Voting Frame"], 250, 420)
 	-- Scrolling table
 	local st = LibStub("ScrollingTable"):CreateST(self.scrollCols, NUM_ROWS, ROW_HEIGHT, { ["r"] = 1.0, ["g"] = 0.9, ["b"] = 0.0, ["a"] = 0.5 }, f.content)
 	st.frame:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 10)
@@ -501,7 +499,7 @@ function RCVotingFrame:GetFrame()
 			return false
 		end,
 	})
-	st:SetFilter(RCVotingFrame.filterFunc)
+	st:SetFilter(SageVotingFrame.filterFunc)
 	st:EnableSelection(true)
 	f.st = st
 	--[[------------------------------
@@ -553,7 +551,7 @@ function RCVotingFrame:GetFrame()
 	local b1 = addon:CreateButton(L["Close"], f.content)
 	b1:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -50)
 	if addon.isMasterLooter then
-		b1:SetScript("OnClick", function() if active then LibDialog:Spawn("RCLOOTCOUNCIL_CONFIRM_ABORT") else self:Hide() end end)
+		b1:SetScript("OnClick", function() if active then LibDialog:Spawn("SAGELOOTCOUNCIL_CONFIRM_ABORT") else self:Hide() end end)
 	else
 		b1:SetScript("OnClick", function() self:Hide() end)
 	end
@@ -572,7 +570,7 @@ function RCVotingFrame:GetFrame()
 	end
 	b2:SetScript("OnClick", function(button)
 		moreInfo = not moreInfo
-		db.modules["RCVotingFrame"].moreInfo = moreInfo
+		db.modules["SageVotingFrame"].moreInfo = moreInfo
 		if moreInfo then -- show the more info frame
 			button:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up");
 			button:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down");
@@ -586,7 +584,7 @@ function RCVotingFrame:GetFrame()
 	b2:SetScript("OnLeave", addon.HideTooltip)
 	f.moreInfoBtn = b2
 
-	f.moreInfo = CreateFrame( "GameTooltip", "RCVotingFrameMoreInfo", nil, "GameTooltipTemplate" )
+	f.moreInfo = CreateFrame( "GameTooltip", "SageVotingFrameMoreInfo", nil, "GameTooltipTemplate" )
 
 	-- Filter
 	local b3 = addon:CreateButton(L["Filter"], f.content)
@@ -640,7 +638,7 @@ function RCVotingFrame:GetFrame()
 	return f;
 end
 
-function RCVotingFrame:UpdatePeopleToVote()
+function SageVotingFrame:UpdatePeopleToVote()
 	local voters = {}
 	-- Find out who have voted
 	for name in pairs(lootTable[session].candidates) do
@@ -668,10 +666,10 @@ function RCVotingFrame:UpdatePeopleToVote()
 	self.frame.rollResult:SetWidth(self.frame.rollResult.text:GetStringWidth())
 end
 
-function RCVotingFrame:UpdateSessionButton(i, texture, link, awarded)
+function SageVotingFrame:UpdateSessionButton(i, texture, link, awarded)
 	local btn = sessionButtons[i]
 	if not btn then -- create the button
-		btn = CreateFrame("Button", "RCButton"..i, self.frame.sessionToggleFrame)
+		btn = CreateFrame("Button", "SageButton"..i, self.frame.sessionToggleFrame)
 		btn:SetSize(40,40)
 		--btn:SetText(i)
 		if i == 1 then
@@ -681,7 +679,7 @@ function RCVotingFrame:UpdateSessionButton(i, texture, link, awarded)
 		else
 			btn:SetPoint("TOP", sessionButtons[i-1], "BOTTOM", 0, -2)
 		end
-		btn:SetScript("Onclick", function() RCVotingFrame:SwitchSession(i); end)
+		btn:SetScript("Onclick", function() SageVotingFrame:SwitchSession(i); end)
 		btn:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
 		btn:GetHighlightTexture():SetBlendMode("ADD")
 		btn:SetNormalTexture(texture or "Interface\\InventoryItems\\WoWUnknownItem01")
@@ -720,7 +718,7 @@ end
 ----------------------------------------------------------
 --	Lib-st data functions (not particular pretty, I know)
 ----------------------------------------------------------
-function RCVotingFrame:GetDiffColor(num)
+function SageVotingFrame:GetDiffColor(num)
 	if num == "" then num = 0 end -- Can't compare empty string
 	local green, red, grey = {0,1,0,1},{1,0,0,1},{0.75,0.75,0.75,1}
 	if num > 0 then return green end
@@ -728,12 +726,12 @@ function RCVotingFrame:GetDiffColor(num)
 	return grey
 end
 
-function RCVotingFrame.SetCellClass(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellClass(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	addon.SetCellClassIcon(rowFrame, frame, data, cols, row, realrow, column, fShow, table, lootTable[session].candidates[name].class)
 end
 
-function RCVotingFrame.SetCellName(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellName(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame.text:SetText(name)
 	local c = addon:GetClassColor(lootTable[session].candidates[name].class)
@@ -741,33 +739,33 @@ function RCVotingFrame.SetCellName(rowFrame, frame, data, cols, row, realrow, co
 	data[realrow].cols[column].value = name
 end
 
-function RCVotingFrame.SetCellRank(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellRank(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame.text:SetText(lootTable[session].candidates[name].rank)
 	frame.text:SetTextColor(addon:GetResponseColor(lootTable[session].candidates[name].response))
 	data[realrow].cols[column].value = lootTable[session].candidates[name].rank
 end
 
-function RCVotingFrame.SetCellResponse(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellResponse(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame.text:SetText(addon:GetResponseText(lootTable[session].candidates[name].response))
 	frame.text:SetTextColor(addon:GetResponseColor(lootTable[session].candidates[name].response))
 end
 
-function RCVotingFrame.SetCellIlvl(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellIlvl(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame.text:SetText(lootTable[session].candidates[name].ilvl)
 	data[realrow].cols[column].value = lootTable[session].candidates[name].ilvl
 end
 
-function RCVotingFrame.SetCellDiff(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellDiff(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame.text:SetText(lootTable[session].candidates[name].diff)
-	frame.text:SetTextColor(unpack(RCVotingFrame:GetDiffColor(lootTable[session].candidates[name].diff)))
+	frame.text:SetTextColor(unpack(SageVotingFrame:GetDiffColor(lootTable[session].candidates[name].diff)))
 	data[realrow].cols[column].value = lootTable[session].candidates[name].diff
 end
 
-function RCVotingFrame.SetCellGear(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellGear(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local gear = data[realrow].cols[column].name -- gear1 or gear2
 	local name = data[realrow].name
 	gear = lootTable[session].candidates[name][gear] -- Get the actual gear
@@ -782,7 +780,7 @@ function RCVotingFrame.SetCellGear(rowFrame, frame, data, cols, row, realrow, co
 	end
 end
 
-function RCVotingFrame.SetCellVotes(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellVotes(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame:SetScript("OnEnter", function()
 		if not addon.mldb.anonymousVoting or (db.showForML and addon.isMasterLooter) then
@@ -801,7 +799,7 @@ function RCVotingFrame.SetCellVotes(rowFrame, frame, data, cols, row, realrow, c
 	end
 end
 
-function RCVotingFrame.SetCellVote(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellVote(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	if not active or lootTable[session].awarded then -- Don't show the vote button if awarded or not active
 		if frame.voteBtn then
@@ -854,7 +852,7 @@ function RCVotingFrame.SetCellVote(rowFrame, frame, data, cols, row, realrow, co
 	end
 end
 
-function RCVotingFrame.SetCellNote(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellNote(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	local note = lootTable[session].candidates[name].note
 	local f = frame.noteBtn or CreateFrame("Button", nil, frame)
@@ -873,19 +871,19 @@ function RCVotingFrame.SetCellNote(rowFrame, frame, data, cols, row, realrow, co
 	frame.noteBtn = f
 end
 
-function RCVotingFrame.SetCellRoll(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
+function SageVotingFrame.SetCellRoll(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame.text:SetText(lootTable[session].candidates[name].roll)
 	data[realrow].cols[column].value = lootTable[session].candidates[name].roll
 end
 
-function RCVotingFrame.filterFunc(table, row)
-	if not db.modules["RCVotingFrame"].filters then return true end -- db hasn't been initialized, so just show it
+function SageVotingFrame.filterFunc(table, row)
+	if not db.modules["SageVotingFrame"].filters then return true end -- db hasn't been initialized, so just show it
 	local response = lootTable[session].candidates[row.name].response
 	if response == "AUTOPASS" or response == "PASS" or type(response) == "number" then
-		return db.modules["RCVotingFrame"].filters[response]
+		return db.modules["SageVotingFrame"].filters[response]
 	else -- Filter out the status texts
-		return db.modules["RCVotingFrame"].filters["STATUS"]
+		return db.modules["SageVotingFrame"].filters["STATUS"]
 	end
 end
 
@@ -950,7 +948,7 @@ end
 do
 	local info = Lib_UIDropDownMenu_CreateInfo() -- Efficiency :)
 	-- NOTE Take care of info[] values when inserting new buttons
-	function RCVotingFrame.RightClickMenu(menu, level)
+	function SageVotingFrame.RightClickMenu(menu, level)
 		if not addon.isMasterLooter then return end
 
 		local candidateName = menu.name
@@ -969,7 +967,7 @@ do
 
 			info.text = L["Award"]
 			info.func = function()
-				LibDialog:Spawn("RCLOOTCOUNCIL_CONFIRM_AWARD", {
+				LibDialog:Spawn("SAGELOOTCOUNCIL_CONFIRM_AWARD", {
 					session,
 				  	candidateName,
 					data.response,
@@ -1014,7 +1012,7 @@ do
 
 			info.text = L["Add rolls"]
 			info.notCheckable = true
-			info.func = function() RCVotingFrame:DoRandomRolls(session) end
+			info.func = function() SageVotingFrame:DoRandomRolls(session) end
 			Lib_UIDropDownMenu_AddButton(info, level)
 
 		elseif level == 2 then
@@ -1026,7 +1024,7 @@ do
 					info.text = v.text
 					info.notCheckable = true
 					info.func = function()
-						LibDialog:Spawn("RCLOOTCOUNCIL_CONFIRM_AWARD", {
+						LibDialog:Spawn("SAGELOOTCOUNCIL_CONFIRM_AWARD", {
 							session,
 						  	candidateName,
 							nil,
@@ -1098,21 +1096,21 @@ do
 		end
 	end
 
-	function RCVotingFrame.FilterMenu(menu, level)
+	function SageVotingFrame.FilterMenu(menu, level)
 		if level == 1 then -- Redundant
 			-- Build the data table:
 			local data = {["STATUS"] = true, ["PASS"] = true, ["AUTOPASS"] = true}
 			for i = 1, addon.mldb.numButtons or db.numButtons do
 				data[i] = i
 			end
-			if not db.modules["RCVotingFrame"].filters then -- Create the db entry
+			if not db.modules["SageVotingFrame"].filters then -- Create the db entry
 				addon:DebugLog("Created VotingFrame filters")
-				db.modules["RCVotingFrame"].filters = {}
+				db.modules["SageVotingFrame"].filters = {}
 			end
 			for k in pairs(data) do -- Update the db entry to make sure we have all buttons in it
-				if type(db.modules["RCVotingFrame"].filters[k]) ~= "boolean" then
+				if type(db.modules["SageVotingFrame"].filters[k]) ~= "boolean" then
 					addon:Debug("Didn't contain "..k)
-					db.modules["RCVotingFrame"].filters[k] = true -- Default as true
+					db.modules["SageVotingFrame"].filters[k] = true -- Default as true
 				end
 			end
 			info.text = L["Filter"]
@@ -1127,10 +1125,10 @@ do
 				info.colorCode = "|cff"..addon:RGBToHex(addon:GetResponseColor(k))
 				info.func = function()
 					addon:Debug("Update Filter")
-					db.modules["RCVotingFrame"].filters[k] = not db.modules["RCVotingFrame"].filters[k]
-					RCVotingFrame:Update()
+					db.modules["SageVotingFrame"].filters[k] = not db.modules["SageVotingFrame"].filters[k]
+					SageVotingFrame:Update()
 				end
-				info.checked = db.modules["RCVotingFrame"].filters[k]
+				info.checked = db.modules["SageVotingFrame"].filters[k]
 				Lib_UIDropDownMenu_AddButton(info, level)
 			end
 			for k in pairs(data) do -- A bit redundency, but it makes sure these "specials" comes last
@@ -1144,17 +1142,17 @@ do
 					end
 					info.func = function()
 						addon:Debug("Update Filter")
-						db.modules["RCVotingFrame"].filters[k] = not db.modules["RCVotingFrame"].filters[k]
-						RCVotingFrame:Update()
+						db.modules["SageVotingFrame"].filters[k] = not db.modules["SageVotingFrame"].filters[k]
+						SageVotingFrame:Update()
 					end
-					info.checked = db.modules["RCVotingFrame"].filters[k]
+					info.checked = db.modules["SageVotingFrame"].filters[k]
 					Lib_UIDropDownMenu_AddButton(info, level)
 				end
 			end
 		end
 	end
 
-	function RCVotingFrame.EnchantersMenu(menu, level)
+	function SageVotingFrame.EnchantersMenu(menu, level)
 		if level == 1 then
 			local added = false
 			info = Lib_UIDropDownMenu_CreateInfo()
@@ -1169,7 +1167,7 @@ do
 					info.func = function()
 						for k,v in ipairs(db.awardReasons) do
 							if v.disenchant then
-								LibDialog:Spawn("RCLOOTCOUNCIL_CONFIRM_AWARD", {
+								LibDialog:Spawn("SAGELOOTCOUNCIL_CONFIRM_AWARD", {
 									session,
 								  	name,
 									nil,
@@ -1193,7 +1191,7 @@ do
 	end
 end
 
-function RCVotingFrame:GetItemStatus(item)
+function SageVotingFrame:GetItemStatus(item)
 	--addon:DebugLog("GetitemStatus", item)
 	if not item then return "" end
 	GameTooltip:SetOwner(UIParent, "ANCHOR_NONE")

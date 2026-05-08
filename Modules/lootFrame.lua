@@ -1,13 +1,11 @@
--- Author      : Potdisc
--- Create Date : 12/16/2014 8:24:04 PM
 -- DefaultModule
 -- lootFrame.lua	Adds the interface for selecting a response to a session
 
 
-local addon = LibStub("AceAddon-3.0"):GetAddon("RCLootCouncil")
-local LootFrame = addon:NewModule("RCLootFrame", "AceTimer-3.0")
+local addon = LibStub("AceAddon-3.0"):GetAddon("SageLootCouncil")
+local LootFrame = addon:NewModule("SageLootFrame", "AceTimer-3.0")
 local LibDialog = LibStub("LibDialog-1.0")
-local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
+local L = LibStub("AceLocale-3.0"):GetLocale("SageLootCouncil")
 local LibToken = LibStub("LibArmorToken-1.0")
 
 local items = {} -- item.i = {name, link, lvl, texture} (i == session)
@@ -94,7 +92,7 @@ function LootFrame:Update()
 			if id then 
 				local slot = select(9, GetItemInfo(id))
 				if not slot or slot == "" then 
-					slot = RCTokenTable[id]
+					slot = SageTokenTable[id]
 				end
 
 				local g1, g2 = addon:GetPlayersGear(v.link, slot)
@@ -193,7 +191,7 @@ end
 function LootFrame:GetFrame()
 	if self.frame then return self.frame end
 	addon:DebugLog("LootFrame","GetFrame()")
-	return addon:CreateFrame("DefaultRCLootFrame", "lootframe", L["RCLootCouncil Loot Frame"], 250, 375)
+	return addon:CreateFrame("DefaultSageLootFrame", "lootframe", L["SageLootCouncil Loot Frame"], 250, 375)
 end
 
 function LootFrame:GetEntry(entry)

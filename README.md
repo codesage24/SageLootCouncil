@@ -1,4 +1,4 @@
-# RcLootCouncil-3.3.5a
-RcLootCouncil for WotLK 3.3.5a
+# SageLootCouncil
+SageLootCouncil for Ascension.
 
-Latest version can always be downloaded with [THIS](https://github.com/broizter/RcLootCouncil-3.3.5a/releases/latest/download/RCLootCouncil.zip) link.
+Latest version can always be downloaded with [THIS](https://github.com/codesage24/SageLootCouncil) link.
