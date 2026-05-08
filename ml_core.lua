@@ -209,6 +209,12 @@ function SageLootCouncilML:AddUserItem(item)
 	addon:GetActiveModule("sessionframe"):Show(self.lootTable)
 end
 
+function SageLootCouncilML:ShowBagFrame()
+	if self.running then return addon:Print(L["You're already running a session."]) end
+	addon:CallModule("bagFrame")
+	addon:GetActiveModule("bagFrame"):Show()
+end
+
 function SageLootCouncilML:SessionFromBags()
 	if self.running then return addon:Print(L["You're already running a session."]) end
 	if #self.lootInBags == 0 then return addon:Print(L["No items to award later registered"]) end

@@ -34,6 +34,7 @@ local defaultModules = {
 	history =		"SageLootHistory",
 	version =		"SageVersionCheck",
 	sessionframe =	"SageSessionFrame",
+	bagFrame = 		"SageBagFrame",
 	votingframe =	"SageVotingFrame",
 }
 local userModules = {
@@ -489,6 +490,14 @@ function SageLootCouncil:ChatCommand(msg)
 			self:Print(L["You cannot use this command without being the Master Looter"])
 		end
 
+	elseif (input == "new" or input == L["new"]) then
+		self:GetActiveModule("masterlooter"):ShowBagFrame()
+		--if self.isMasterLooter then
+		--	self:GetActiveModule("masterlooter"):ShowBagFrame()
+		--else
+		--	self:Print(L["You cannot use this command without being the Master Looter"])
+		--end
+
 	elseif input == "award" or input == L["award"] then
 		if self.isMasterLooter then
 			self:GetActiveModule("masterlooter"):SessionFromBags()
@@ -529,7 +538,6 @@ function SageLootCouncil:ChatCommand(msg)
 	elseif input == 't' then -- Tester cmd
 		printtable(historyDB)
 --@end-debug@
-
 	elseif input == "share" then 
 		if self.isMasterLooter then
 

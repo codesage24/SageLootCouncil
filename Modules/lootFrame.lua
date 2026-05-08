@@ -1,7 +1,6 @@
 -- DefaultModule
 -- lootFrame.lua	Adds the interface for selecting a response to a session
 
-
 local addon = LibStub("AceAddon-3.0"):GetAddon("SageLootCouncil")
 local LootFrame = addon:NewModule("SageLootFrame", "AceTimer-3.0")
 local LibDialog = LibStub("LibDialog-1.0")
